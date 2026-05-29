@@ -1,4 +1,93 @@
 package br.com.pysat.entities;
 
-public class FocoCalor {
+public abstract class FocoCalor {
+
+    protected int idFoco;
+    protected double latitude;
+    protected double longitude;
+    protected double temperaturaKelvin;
+    protected String classificacao;
+    protected String nivelSeveridade;
+    protected double scoreRisco;
+    protected String dataHoraDeteccao;
+
+    public FocoCalor(){}
+
+    public FocoCalor(int idFoco, double latitude, double longitude, double temperaturaKelvin, String classificacao, String dataHoraDeteccao) {
+        this.idFoco = idFoco;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.temperaturaKelvin = temperaturaKelvin;
+        this.classificacao = classificacao;
+        this.dataHoraDeteccao = dataHoraDeteccao;
+        this.scoreRisco = 0.0;
+        this.nivelSeveridade = "Monitorando...";
+    }
+
+    //metodo abstrato para outras classes filhas terem sua propria logica
+    public abstract String calcularSeveridade();
+
+    public int getIdFoco() {
+        return idFoco;
+    }
+
+    public void setIdFoco(int idFoco) {
+        this.idFoco = idFoco;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public double getTemperaturaKelvin() {
+        return temperaturaKelvin;
+    }
+
+    public void setTemperaturaKelvin(double temperaturaKelvin) {
+        this.temperaturaKelvin = temperaturaKelvin;
+    }
+
+    public String getClassificacao() {
+        return classificacao;
+    }
+
+    public void setClassificacao(String classificacao) {
+        this.classificacao = classificacao;
+    }
+
+    public String getNivelSeveridade() {
+        return nivelSeveridade;
+    }
+
+    public void setNivelSeveridade(String nivelSeveridade) {
+        this.nivelSeveridade = nivelSeveridade;
+    }
+
+    public double getScoreRisco() {
+        return scoreRisco;
+    }
+
+    public void setScoreRisco(double scoreRisco) {
+        this.scoreRisco = scoreRisco;
+    }
+
+    public String getDataHoraDeteccao() {
+        return dataHoraDeteccao;
+    }
+
+    public void setDataHoraDeteccao(String dataHoraDeteccao) {
+        this.dataHoraDeteccao = dataHoraDeteccao;
+    }
 }
