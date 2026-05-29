@@ -1,4 +1,4 @@
-package main;
+package br.com.pysat.main;
 
 public class Programa {
 }
