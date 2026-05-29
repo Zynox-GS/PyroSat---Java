@@ -100,9 +100,11 @@ public class Programa {
         esperar(1500);
 
         System.out.println("\n[Status das Brigadas]");
+
+        String nomeOcorrencia = brigadaAlfa.getOcorrenciaAtiva() != null ? brigadaAlfa.getOcorrenciaAtiva() : "Nenhuma no momento";
+
         System.out.println(brigadaAlfa.getNome() + " -> " + brigadaAlfa.getStatus() +
-                " | Ocorrência: " + brigadaAlfa.getOcorrenciaAtiva());
-        esperar(1500);
+                " | Ocorrência: " + nomeOcorrencia);
 
         System.out.println("\n[Log de Atividades do Coordenador]");
         coordenador.exibirLogOperacoes();
