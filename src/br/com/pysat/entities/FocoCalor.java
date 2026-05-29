@@ -5,7 +5,7 @@ public abstract class FocoCalor {
     protected int idFoco;
     protected double latitude;
     protected double longitude;
-    protected double temperaturaKelvin;
+    protected double temperaturaCelsius;
     protected String classificacao;
     protected String nivelSeveridade;
     protected double scoreRisco;
@@ -13,11 +13,11 @@ public abstract class FocoCalor {
 
     public FocoCalor(){}
 
-    public FocoCalor(int idFoco, double latitude, double longitude, double temperaturaKelvin, String classificacao, String dataHoraDeteccao) {
+    public FocoCalor(int idFoco, double latitude, double longitude, double temperaturaCelsius, String classificacao, String dataHoraDeteccao) {
         this.idFoco = idFoco;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.temperaturaKelvin = temperaturaKelvin;
+        this.temperaturaCelsius = temperaturaCelsius;
         this.classificacao = classificacao;
         this.dataHoraDeteccao = dataHoraDeteccao;
         this.scoreRisco = 0.0;
@@ -51,12 +51,12 @@ public abstract class FocoCalor {
         this.longitude = longitude;
     }
 
-    public double getTemperaturaKelvin() {
-        return temperaturaKelvin;
+    public double getTemperaturaCelsius() {
+        return temperaturaCelsius;
     }
 
-    public void setTemperaturaKelvin(double temperaturaKelvin) {
-        this.temperaturaKelvin = temperaturaKelvin;
+    public void setTemperaturaKelvin(double temperaturaCelsius) {
+        this.temperaturaCelsius = temperaturaCelsius;
     }
 
     public String getClassificacao() {
