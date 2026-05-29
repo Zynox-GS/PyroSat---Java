@@ -111,8 +111,15 @@ public class FocoConfirmado extends FocoCalor{
 
     @Override
     public String toString() {
-        return super.toString() +
+        return "\n=== FOCO CONFIRMADO ===" +
+                "\nID: " + idFoco +
+                "\nLatitude: " + latitude +
+                "\nLongitude: " + longitude +
+                "\nTemperatura: " + temperaturaCelsius + " °C" +
+                "\nNível de Severidade: " + nivelSeveridade +
+                "\nScore de Risco: " + scoreRisco +
                 "\nOperador: " + operadorConfirmacao +
+                "\nDetectado em: " + dataHoraDeteccao +
                 "\nConfirmado em: " + dataHoraConfirmacao +
                 "\nAlertas gerados: " + alertasGerados.size();
     }
