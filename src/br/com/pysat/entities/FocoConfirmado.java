@@ -2,7 +2,7 @@ package br.com.pysat.entities;
 
 import java.util.ArrayList;
 
-public class FocoConfirmado extends FocoCalor{
+public class FocoConfirmado extends FocoCalor {
 
     private String operadorConfirmacao;
     private String dataHoraConfirmacao;
@@ -21,11 +21,6 @@ public class FocoConfirmado extends FocoCalor{
         this.alertasGerados = new ArrayList<>();
     }
 
-    /**
-     * Calcula severidade baseada na temperatura do foco confirmado (RN03).
-     * Apenas focos CONFIRMADOS ativam o protocolo completo de alertas.
-     * Lógica: temperatura em Kelvin define o nível de emergência real.
-     */
     @Override
     public String calcularSeveridade() {
         String nivel;
@@ -43,16 +38,17 @@ public class FocoConfirmado extends FocoCalor{
             nivel = "MONITORAMENTO";
             score = 25.0;
         }
-
         setNivelSeveridade(nivel);
         setScoreRisco(score);
         return nivel;
     }
-    /**
-     * Metodo principal — aciona o protocolo em cascata (RN02 e RN05).
-     * Instancia alertas e os distribui conforme a hierarquia de severidade.
-     * Retorna lista de alertas criados para exibição.
-     */
+
+    public String gerarProtocolo() {
+        return "OC-" + getIdFoco() + "-" +
+                java.time.LocalDateTime.now()
+                        .format(java.time.format.DateTimeFormatter.ofPattern("HHmmss"));
+    }
+
     public ArrayList<Alerta> acionarProtocoloCascata(OrgaoResponsavel... orgaos) {
         calcularSeveridade();
         alertasGerados.clear();
@@ -82,7 +78,7 @@ public class FocoConfirmado extends FocoCalor{
                         orgao.getNome()
                 );
                 alertasGerados.add(alerta);
-                orgao.receberAlerta(alerta);   // chama interface Notificavel
+                orgao.receberAlerta(alerta);
             }
         }
 
