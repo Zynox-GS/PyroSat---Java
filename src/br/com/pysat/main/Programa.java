@@ -1,115 +1,457 @@
 package br.com.pysat.main;
 
 import br.com.pysat.entities.*;
-import javax.swing.JOptionPane;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Programa {
 
-    // --- Métodos de entrada (Baseados no seu modelo) ---
-    static String texto(String j) {
-        return JOptionPane.showInputDialog(j);
+    static Scanner sc = new Scanner(System.in);
+
+    static String texto(String msg) {
+        System.out.print(msg);
+        return sc.nextLine().trim();
     }
 
-    static int inteiro(String j) {
-        return Integer.parseInt(JOptionPane.showInputDialog(j));
-    }
-
-    static double real(String j) {
-        return Double.parseDouble(JOptionPane.showInputDialog(j));
-    }
-
-    // --- Método novo para simular o "timer" (delay) ---
-    static void esperar(int milissegundos) {
-        try {
-            Thread.sleep(milissegundos);
-        } catch (InterruptedException e) {
-            System.out.println("Erro no timer do sistema.");
+    static int inteiro(String msg) {
+        while (true) {
+            try {
+                System.out.print(msg);
+                int v = Integer.parseInt(sc.nextLine().trim());
+                return v;
+            } catch (NumberFormatException e) {
+                System.out.println("  !! Valor inválido. Digite um número inteiro.");
+            }
         }
     }
 
-    public static void main(String[] args) {
+    static double real(String msg) {
+        while (true) {
+            try {
+                System.out.print(msg);
+                double v = Double.parseDouble(sc.nextLine().trim().replace(",", "."));
+                return v;
+            } catch (NumberFormatException e) {
+                System.out.println("  !! Valor inválido. Digite um número (ex: 123.45).");
+            }
+        }
+    }
 
-        // 1. Instanciar objetos base
-        Coordenador coordenador = new Coordenador(1, "carlos.silva@pysat.com", "CBM", "Carlos Silva");
-
-        OrgaoResponsavel ibama = new OrgaoResponsavel(-47.8822, -15.7942, 500.0, "0800-111-222",
-                "contato@ibama.gov.br", "DF", "Federal", "IBAMA", "Instituto Brasileiro do Meio Ambiente", 1);
-
-        OrgaoResponsavel defCivil = new OrgaoResponsavel(-46.6333, -23.5505, 150.0, "199",
-                "defesa@sp.gov.br", "SP", "Estadual", "DEFESA CIVIL", "Defesa Civil do Estado", 2);
-
-        Brigada brigadaAlfa = new Brigada(1, "Brigada Alfa", 15, -15.8000, -47.9000, "IBAMA");
-
-        Area parqueNacional = new Area(1, "Parque Nacional", "DF", "Brasília", "Cerrado",
-                -15.7000, -47.8000, 420.5);
-
-        JOptionPane.showMessageDialog(null, "Bem-vindo ao Sistema PYSAT - Pressione OK para iniciar as leituras.");
-
-        // 2. Entradas para Foco Suspeito via JOptionPane
-        double tempSuspeito = real("Análise de Foco Suspeito\nDigite a temperatura detectada (em °C):");
-        double umidade = real("Digite a umidade do ar (%):");
-        double ndvi = real("Digite o índice NDVI (0.0 a 1.0):");
-
-        FocoSuspeito suspeito = new FocoSuspeito(101, -15.7200, -47.8100, tempSuspeito,
-                "29/05/2026 14:00:00", umidade, ndvi);
-
-        suspeito.calcularSeveridade();
-
-        int respUrgencia = JOptionPane.showConfirmDialog(null, "Deseja forçar estado de URGÊNCIA MANUAL neste foco suspeito?", "Revisão", JOptionPane.YES_NO_OPTION);
-        boolean urgenciaManual = (respUrgencia == JOptionPane.YES_OPTION);
-        suspeito.calcularSeveridade(urgenciaManual);
-
-        // 3. Entradas para Foco Confirmado via JOptionPane
-        double tempConfirmado = real("Registro de Incêndio Real\nDigite a temperatura do fogo confirmado (em °C):");
-        String operador = texto("Digite o nome do operador responsável:");
-
-        FocoConfirmado confirmado = new FocoConfirmado(102, -15.7500, -47.8500, tempConfirmado,
-                "29/05/2026 14:30:00", operador, "29/05/2026 14:35:00");
-
-        parqueNacional.adicionarFoco(confirmado);
-
-        // 4. Acionamento de Protocolos
-        JOptionPane.showMessageDialog(null, "Sistema processando os dados...\nAcompanhe o relatório dinâmico no Console (System.out).");
-
-        // --- INÍCIO DA SIMULAÇÃO DE TERMINAL NO CONSOLE ---
-
-        System.out.println("[SISTEMA] Iniciando varredura e cálculo de rotas...");
-        esperar(1500); // Pausa de 1.5 segundos
-
-        coordenador.acionarProtocoloCascata(confirmado, ibama, defCivil);
-        esperar(2000); // Pausa de 2 segundos para o professor ler os alertas
-
-        System.out.println("\n[SISTEMA] Localizando brigadas disponíveis...");
-        esperar(1500);
-        coordenador.coordenarBrigadas(confirmado, "OCORRENCIA-102", brigadaAlfa);
-        esperar(2000);
-
-        // 5. Saídas dinâmicas (Aparecendo aos poucos)
-        System.out.println("\n=================================================");
-        System.out.println("              GERANDO RELATÓRIO FINAL...");
+    static void linha() {
         System.out.println("=================================================");
-        esperar(1500);
+    }
 
-        System.out.println(suspeito);
-        esperar(1500);
+    static ArrayList<Coordenador>      coordenadores = new ArrayList<>();
+    static ArrayList<OrgaoResponsavel> orgaos        = new ArrayList<>();
+    static ArrayList<Brigada>          brigadas      = new ArrayList<>();
+    static ArrayList<Area>             areas         = new ArrayList<>();
+    static ArrayList<FocoCalor>        focos         = new ArrayList<>();
 
-        System.out.println(confirmado);
-        esperar(1500);
+    static int idCoordenador = 1;
+    static int idOrgao       = 1;
+    static int idBrigada     = 1;
+    static int idArea        = 1;
+    static int idFoco        = 100;
 
-        System.out.println(parqueNacional);
-        esperar(1500);
+    public static void main(String[] args) {
+        linha();
+        System.out.println("     PYROSAT — Sistema de Detecção de Queimadas");
+        System.out.println("         Monitoramento via Satélite | v1.0");
+        linha();
 
-        System.out.println("\n[Status das Brigadas]");
+        boolean rodando = true;
+        while (rodando) {
+            exibirMenuPrincipal();
+            int opcao = inteiro("Escolha uma opção: ");
+            switch (opcao) {
+                case 1 -> cadastrarCoordenador();
+                case 2 -> cadastrarOrgaoResponsavel();
+                case 3 -> cadastrarBrigada();
+                case 4 -> cadastrarArea();
+                case 5 -> registrarFoco();
+                case 6 -> revisarFocoSuspeito();
+                case 7 -> acionarProtocolo();
+                case 8 -> liberarBrigada();
+                case 9 -> exibirRelatorioGeral();
+                case 0 -> {
+                    System.out.println("\n[SISTEMA] Encerrando PyroSat. Até logo!\n");
+                    rodando = false;
+                }
+                default -> System.out.println("  !! Opção inválida. Tente novamente.");
+            }
+        }
+        sc.close();
+    }
 
-        String nomeOcorrencia = brigadaAlfa.getOcorrenciaAtiva() != null ? brigadaAlfa.getOcorrenciaAtiva() : "Nenhuma no momento";
+    static void exibirMenuPrincipal() {
+        System.out.println();
+        linha();
+        System.out.println("  MENU PRINCIPAL — PYROSAT");
+        linha();
+        System.out.println("  [1] Cadastrar Coordenador");
+        System.out.println("  [2] Cadastrar Órgão Responsável");
+        System.out.println("  [3] Cadastrar Brigada");
+        System.out.println("  [4] Cadastrar Área de Monitoramento");
+        System.out.println("  [5] Registrar Novo Foco de Calor");
+        System.out.println("  [6] Revisar Foco Suspeito");
+        System.out.println("  [7] Acionar Protocolo de Emergência");
+        System.out.println("  [8] Liberar Brigada de Ocorrência");
+        System.out.println("  [9] Relatório Geral do Sistema");
+        System.out.println("  [0] Sair");
+        linha();
+    }
 
-        System.out.println(brigadaAlfa.getNome() + " -> " + brigadaAlfa.getStatus() +
-                " | Ocorrência: " + nomeOcorrencia);
+    static void cadastrarCoordenador() {
+        System.out.println("\n--- CADASTRO DE COORDENADOR ---");
+        String nome  = texto("  Nome completo: ");
+        String orgao = texto("  Órgão: ");
+        String email = texto("  E-mail: ");
 
-        System.out.println("\n[Log de Atividades do Coordenador]");
-        coordenador.exibirLogOperacoes();
+        Coordenador c = new Coordenador(idCoordenador++, email, orgao, nome);
+        coordenadores.add(c);
 
-        esperar(1000);
-        System.out.println("\n[SISTEMA] Operação finalizada com sucesso.");
+        System.out.println("\n  [OK] Coordenador cadastrado!");
+        System.out.println(c);
+    }
+
+    static void cadastrarOrgaoResponsavel() {
+        System.out.println("\n--- CADASTRO DE ÓRGÃO RESPONSÁVEL ---");
+        String nome   = texto("  Nome do órgão: ");
+        String sigla  = texto("  Sigla: ");
+        String tipo   = texto("  Tipo (Federal/Estadual/Municipal): ");
+        String estado = texto("  Estado (UF): ");
+        String email  = texto("  E-mail de contato: ");
+        String tel    = texto("  Telefone: ");
+        double lat    = real("  Latitude da sede (ex: -15.7942): ");
+        double lon    = real("  Longitude da sede (ex: -47.8822): ");
+        double raio   = real("  Raio de cobertura (km): ");
+
+        OrgaoResponsavel o = new OrgaoResponsavel(lon, lat, raio, tel, email, estado, tipo, sigla, nome, idOrgao++);
+        orgaos.add(o);
+
+        System.out.println("\n  [OK] Órgão cadastrado!");
+        System.out.println(o);
+        System.out.println("  Canais de notificação: " + o.getCanaisNotificacao());
+    }
+
+    static void cadastrarBrigada() {
+        System.out.println("\n--- CADASTRO DE BRIGADA ---");
+        String nome  = texto("  Nome da brigada: ");
+        int    qtd   = inteiro("  Quantidade de brigadistas: ");
+        String orgao = texto("  Órgão vinculado: ");
+        double lat   = real("  Latitude atual (ex: -15.8000): ");
+        double lon   = real("  Longitude atual (ex: -47.9000): ");
+
+        Brigada b = new Brigada(idBrigada++, nome, qtd, lat, lon, orgao);
+        brigadas.add(b);
+
+        System.out.println("\n  [OK] Brigada cadastrada!");
+        System.out.println("  Status inicial: " + (b.verificarDisponibilidade() ? "DISPONÍVEL" : "INDISPONÍVEL"));
+        System.out.println(b);
+    }
+
+    static void cadastrarArea() {
+        System.out.println("\n--- CADASTRO DE ÁREA DE MONITORAMENTO ---");
+        String nome      = texto("  Nome da área: ");
+        String estado    = texto("  Estado (UF): ");
+        String municipio = texto("  Município: ");
+        String bioma     = texto("  Bioma (ex: Cerrado, Amazônia): ");
+        double lat       = real("  Latitude do centróide: ");
+        double lon       = real("  Longitude do centróide: ");
+        double areaKm2   = real("  Área em km²: ");
+
+        Area a = new Area(idArea++, nome, estado, municipio, bioma, lat, lon, areaKm2);
+        areas.add(a);
+
+        System.out.println("\n  [OK] Área cadastrada!");
+        System.out.println(a);
+    }
+
+    static void registrarFoco() {
+        System.out.println("\n--- REGISTRO DE NOVO FOCO DE CALOR ---");
+        System.out.println("  [1] Foco Suspeito  (aguarda revisão humana)");
+        System.out.println("  [2] Foco Confirmado (incêndio verificado)");
+        int tipo = inteiro("  Tipo do foco: ");
+
+        if (tipo != 1 && tipo != 2) {
+            System.out.println("  !! Tipo inválido.");
+            return;
+        }
+
+        double lat   = real("  Latitude do foco (ex: -15.7200): ");
+        double lon   = real("  Longitude do foco (ex: -47.8100): ");
+        double temp  = real("  Temperatura detectada (°C): ");
+        String dataH = java.time.LocalDateTime.now()
+                .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+
+        Area areaSelecionada = selecionarArea();
+
+        if (tipo == 1) {
+            double umidade = real("  Umidade do ar (%): ");
+            double ndvi    = real("  Índice NDVI (0.0 a 1.0): ");
+
+            FocoSuspeito fs = new FocoSuspeito(idFoco++, lat, lon, temp, dataH, umidade, ndvi);
+            fs.calcularSeveridade();
+            focos.add(fs);
+            if (areaSelecionada != null) areaSelecionada.adicionarFoco(fs);
+
+            System.out.println("\n  [OK] Foco Suspeito registrado!");
+            System.out.println(fs);
+
+            String urgencia = texto("\n  Forçar URGÊNCIA MANUAL neste foco? (s/n): ");
+            if (urgencia.equalsIgnoreCase("s")) {
+                fs.calcularSeveridade(true);
+                System.out.println("  [!] Urgência manual aplicada. Severidade: " + fs.getNivelSeveridade());
+            }
+
+        } else {
+            String operador = texto("  Nome do operador que confirmou: ");
+
+            FocoConfirmado fc = new FocoConfirmado(idFoco++, lat, lon, temp, dataH, operador, dataH);
+            fc.calcularSeveridade();
+            focos.add(fc);
+            if (areaSelecionada != null) areaSelecionada.adicionarFoco(fc);
+
+            System.out.println("\n  [OK] Foco Confirmado registrado!");
+            System.out.println(fc);
+            System.out.println("  Severidade: " + fc.getNivelSeveridade() + " | Score: " + fc.getScoreRisco());
+        }
+    }
+
+    static void revisarFocoSuspeito() {
+        System.out.println("\n--- REVISÃO DE FOCO SUSPEITO ---");
+
+        ArrayList<FocoSuspeito> suspeitos = new ArrayList<>();
+        for (FocoCalor f : focos) {
+            if (f instanceof FocoSuspeito fs && fs.isAguardandoRevisao()) {
+                suspeitos.add(fs);
+            }
+        }
+
+        if (suspeitos.isEmpty()) {
+            System.out.println("  Nenhum foco suspeito pendente de revisão.");
+            return;
+        }
+
+        System.out.println("  Focos suspeitos pendentes:");
+        for (int i = 0; i < suspeitos.size(); i++) {
+            FocoSuspeito fs = suspeitos.get(i);
+            System.out.println("    [" + (i + 1) + "] Foco #" + fs.getIdFoco()
+                    + " | " + fs.getLatitude() + ", " + fs.getLongitude()
+                    + " | Temp: " + fs.getTemperaturaCelsius() + "°C"
+                    + " | Severidade: " + fs.getNivelSeveridade());
+        }
+
+        int escolha = inteiro("  Escolha o foco (0 = cancelar): ");
+        if (escolha == 0 || escolha > suspeitos.size()) return;
+        FocoSuspeito fs = suspeitos.get(escolha - 1);
+
+        System.out.println(fs);
+        System.out.println("\n  [1] Confirmar como incêndio real");
+        System.out.println("  [2] Atualizar dados e manter suspeito");
+        System.out.println("  [3] Descartar (falso alarme)");
+        int decisao = inteiro("  Decisão: ");
+
+        if (decisao == 1) {
+            String operador = texto("  Nome do operador responsável: ");
+
+            FocoConfirmado fc = fs.promoverParaConfirmado(operador);
+            fc.calcularSeveridade();
+
+            focos.remove(fs);
+            focos.add(fc);
+            for (Area a : areas) {
+                if (a.removerFoco(fs)) a.adicionarFoco(fc);
+            }
+
+            System.out.println("\n  [OK] Foco #" + fc.getIdFoco() + " promovido para CONFIRMADO!");
+            System.out.println(fc);
+
+            if (!coordenadores.isEmpty()) {
+                Coordenador coord = coordenadores.get(0);
+                if (coord.exigeConfirmacaoHumana(fc)) {
+                    System.out.println("\n  [!] Nível " + fc.getNivelSeveridade()
+                            + " exige ação imediata — coordenador " + coord.getNome() + " notificado.");
+                }
+            }
+
+            String acionar = texto("\n  Acionar protocolo de emergência agora? (s/n): ");
+            if (acionar.equalsIgnoreCase("s")) executarProtocolo(fc);
+
+        } else if (decisao == 2) {
+            double novaTemp    = real("  Nova temperatura (°C): ");
+            double novaUmidade = real("  Nova umidade (%): ");
+            double novoNdvi    = real("  Novo NDVI (0.0 a 1.0): ");
+            fs.setTemperaturaKelvin(novaTemp);
+            fs.setUmidade(novaUmidade);
+            fs.setNdvi(novoNdvi);
+            fs.calcularSeveridade();
+            System.out.println("  [OK] Foco atualizado. Nova severidade: " + fs.getNivelSeveridade());
+
+        } else if (decisao == 3) {
+            fs.descartar();
+            focos.remove(fs);
+            for (Area a : areas) a.removerFoco(fs);
+            System.out.println("  [OK] Foco #" + fs.getIdFoco() + " descartado (falso alarme).");
+
+        } else {
+            System.out.println("  !! Opção inválida.");
+        }
+    }
+
+    static void acionarProtocolo() {
+        System.out.println("\n--- ACIONAMENTO DE PROTOCOLO DE EMERGÊNCIA ---");
+
+        if (coordenadores.isEmpty()) {
+            System.out.println("  !! Cadastre ao menos um Coordenador primeiro.");
+            return;
+        }
+        if (orgaos.isEmpty()) {
+            System.out.println("  !! Cadastre ao menos um Órgão Responsável primeiro.");
+            return;
+        }
+
+        System.out.println("  Coordenadores disponíveis:");
+        for (int i = 0; i < coordenadores.size(); i++) {
+            System.out.println("    [" + (i + 1) + "] " + coordenadores.get(i).getNome()
+                    + " — " + coordenadores.get(i).getOrgao());
+        }
+        int idxCoord = inteiro("  Selecione o coordenador: ") - 1;
+        if (idxCoord < 0 || idxCoord >= coordenadores.size()) {
+            System.out.println("  !! Seleção inválida.");
+            return;
+        }
+
+        ArrayList<FocoConfirmado> confirmados = new ArrayList<>();
+        for (FocoCalor f : focos) {
+            if (f instanceof FocoConfirmado fc) confirmados.add(fc);
+        }
+
+        if (confirmados.isEmpty()) {
+            System.out.println("  !! Nenhum foco confirmado disponível.");
+            return;
+        }
+
+        System.out.println("\n  Focos confirmados:");
+        for (int i = 0; i < confirmados.size(); i++) {
+            FocoConfirmado fc = confirmados.get(i);
+            System.out.println("    [" + (i + 1) + "] Foco #" + fc.getIdFoco()
+                    + " | Temp: " + fc.getTemperaturaCelsius() + "°C"
+                    + " | Severidade: " + fc.getNivelSeveridade());
+        }
+        int idxFoco = inteiro("  Selecione o foco: ") - 1;
+        if (idxFoco < 0 || idxFoco >= confirmados.size()) {
+            System.out.println("  !! Seleção inválida.");
+            return;
+        }
+
+        executarProtocolo(confirmados.get(idxFoco));
+    }
+
+    static void executarProtocolo(FocoConfirmado fc) {
+        Coordenador coord = coordenadores.get(0);
+
+        linha();
+        System.out.println("  Coordenador: " + coord.getNome());
+        System.out.println("  Foco #" + fc.getIdFoco() + " | Severidade: " + fc.getNivelSeveridade());
+        linha();
+
+        System.out.println("\n[SISTEMA] Selecionando órgãos dentro do raio de cobertura...");
+        OrgaoResponsavel[] arrayOrgaos = orgaos.toArray(new OrgaoResponsavel[0]);
+        ArrayList<Alerta> alertas = coord.acionarProtocoloCascata(fc, arrayOrgaos);
+
+        System.out.println("\n[SISTEMA] Coordenando brigadas...");
+        Brigada[] arrayBrigadas = brigadas.toArray(new Brigada[0]);
+        if (arrayBrigadas.length > 0) {
+            coord.coordenarBrigadas(fc, fc.gerarProtocolo(), arrayBrigadas);
+        } else {
+            System.out.println("  [!] Nenhuma brigada cadastrada para alocação.");
+        }
+
+        System.out.println("\n[SISTEMA] " + alertas.size() + " alerta(s) disparado(s) com sucesso.");
+        coord.exibirLogOperacoes();
+    }
+
+    static void liberarBrigada() {
+        System.out.println("\n--- LIBERAR BRIGADA ---");
+
+        if (brigadas.isEmpty()) {
+            System.out.println("  Nenhuma brigada cadastrada.");
+            return;
+        }
+
+        ArrayList<Brigada> emCampo = new ArrayList<>();
+        for (Brigada b : brigadas) {
+            if (!b.verificarDisponibilidade()) {
+                emCampo.add(b);
+            }
+        }
+
+        if (emCampo.isEmpty()) {
+            System.out.println("  Nenhuma brigada está em campo no momento.");
+            return;
+        }
+
+        System.out.println("  Brigadas em campo:");
+        for (int i = 0; i < emCampo.size(); i++) {
+            System.out.println("    [" + (i + 1) + "] " + emCampo.get(i).getNome()
+                    + " — Ocorrência: " + emCampo.get(i).getOcorrenciaAtiva());
+        }
+
+        int escolha = inteiro("  Selecione a brigada (0 = cancelar): ");
+        if (escolha == 0 || escolha > emCampo.size()) return;
+
+        Brigada b = emCampo.get(escolha - 1);
+        System.out.println("  " + b.liberarBrigada());
+        System.out.println("  Disponível agora: " + (b.verificarDisponibilidade() ? "Sim" : "Não"));
+    }
+
+    static void exibirRelatorioGeral() {
+        linha();
+        System.out.println("          RELATÓRIO GERAL — PYROSAT");
+        linha();
+
+        System.out.println("\n>>> COORDENADORES (" + coordenadores.size() + ")");
+        if (coordenadores.isEmpty()) System.out.println("  Nenhum cadastrado.");
+        for (Coordenador c : coordenadores) System.out.println(c);
+
+        System.out.println("\n>>> ÓRGÃOS RESPONSÁVEIS (" + orgaos.size() + ")");
+        if (orgaos.isEmpty()) System.out.println("  Nenhum cadastrado.");
+        for (OrgaoResponsavel o : orgaos) {
+            System.out.println(o);
+            o.exibirRelatorioAlertas();
+        }
+
+        System.out.println("\n>>> BRIGADAS (" + brigadas.size() + ")");
+        if (brigadas.isEmpty()) System.out.println("  Nenhuma cadastrada.");
+        for (Brigada b : brigadas) {
+            System.out.println(b);
+            System.out.println("  Disponível: " + (b.verificarDisponibilidade() ? "Sim" : "Não"));
+        }
+
+        System.out.println("\n>>> ÁREAS DE MONITORAMENTO (" + areas.size() + ")");
+        if (areas.isEmpty()) System.out.println("  Nenhuma cadastrada.");
+        for (Area a : areas) {
+            System.out.println(a);
+            System.out.println("  Risco Agregado: " + String.format("%.1f", a.calcularRiscoAgregado()));
+        }
+
+        System.out.println("\n>>> FOCOS DE CALOR (" + focos.size() + ")");
+        if (focos.isEmpty()) System.out.println("  Nenhum registrado.");
+        for (FocoCalor f : focos) System.out.println(f);
+
+        linha();
+    }
+
+    static Area selecionarArea() {
+        if (areas.isEmpty()) return null;
+        System.out.println("\n  Áreas cadastradas:");
+        for (int i = 0; i < areas.size(); i++) {
+            System.out.println("    [" + (i + 1) + "] " + areas.get(i).getNome()
+                    + " — " + areas.get(i).getEstado());
+        }
+        int escolha = inteiro("  Vincular a área (0 = nenhuma): ");
+        if (escolha > 0 && escolha <= areas.size()) return areas.get(escolha - 1);
+        return null;
     }
 }
