@@ -9,18 +9,13 @@ public class FocoSuspeito extends FocoCalor {
     public FocoSuspeito(){}
 
     public FocoSuspeito(int idFoco, double latitude, double longitude,
-                        double temperaturaCelsius, String dataHoraDeteccao, double umidade, double ndvi
-    ) {
+                        double temperaturaCelsius, String dataHoraDeteccao, double umidade, double ndvi) {
         super(idFoco, latitude, longitude, temperaturaCelsius, "SUSPEITO", dataHoraDeteccao);
-
         this.aguardandoRevisao = true;
         this.umidade = umidade;
         this.ndvi = ndvi;
     }
-    /**
-     * Calcula severidade com base na confiança da IA e temperatura.
-     * Foco suspeito nunca ultrapassa ATENÇÃO — precisa de confirmação humana.
-     */
+
     @Override
     public String calcularSeveridade() {
         double temp = getTemperaturaCelsius();
@@ -40,7 +35,6 @@ public class FocoSuspeito extends FocoCalor {
         return nivel;
     }
 
-    // Sobrecarga do calcularSeveridade — aceita parâmetro de urgência manual (polimorfismo por sobrecarga)
     public String calcularSeveridade(boolean urgenciaManual) {
         if (urgenciaManual) {
             setNivelSeveridade("ATENCAO");
@@ -48,6 +42,20 @@ public class FocoSuspeito extends FocoCalor {
             return "ATENCAO (urgência manual)";
         }
         return calcularSeveridade();
+    }
+
+    public void descartar() {
+        this.aguardandoRevisao = false;
+        setClassificacao("DESCARTADO");
+    }
+
+    public FocoConfirmado promoverParaConfirmado(String operador) {
+        String agora = java.time.LocalDateTime.now()
+                .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+        this.aguardandoRevisao = false;
+        return new FocoConfirmado(
+                getIdFoco(), getLatitude(), getLongitude(),
+                getTemperaturaCelsius(), getDataHoraDeteccao(), operador, agora);
     }
 
     public boolean isAguardandoRevisao() {
