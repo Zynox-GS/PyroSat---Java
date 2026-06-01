@@ -20,23 +20,16 @@ public class Brigada {
         this.latitudeAtual = latitudeAtual;
         this.longitudeAtual = longitudeAtual;
         this.orgaoVinculado = orgaoVinculado;
-        this.status = "Disponivel";
+        this.status = "DISPONIVEL";
         this.ocorrenciaAtiva = null;
     }
 
-    /**
-     * Verifica se a brigada pode ser alocada a uma nova ocorrência (RN06).
-     * Uma brigada não pode estar em duas ocorrências ATIVAS simultaneamente.
-     * Retorna true se disponível, false caso contrário.
-     */
+
     public boolean verificarDisponibilidade() {
         return status.equals("DISPONIVEL") && ocorrenciaAtiva == null;
     }
 
-    /**
-     * Aloca a brigada a uma ocorrência (respeita RN06).
-     * Retorna mensagem de resultado da operação.
-     */
+
     public String alocarParaOcorrencia(String protocoloOcorrencia) {
         if (!verificarDisponibilidade()) {
             return "ERRO: Brigada " + nome + " já está em campo na ocorrência " + ocorrenciaAtiva;
@@ -46,9 +39,7 @@ public class Brigada {
         return "OK: Brigada " + nome + " alocada para ocorrência " + protocoloOcorrencia;
     }
 
-    /**
-     * Libera a brigada da ocorrência atual.
-     */
+
     public String liberarBrigada() {
         if (ocorrenciaAtiva == null) {
             return "Brigada " + nome + " já está disponível.";
