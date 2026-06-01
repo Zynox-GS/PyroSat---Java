@@ -24,7 +24,7 @@ public abstract class FocoCalor {
         this.nivelSeveridade = "Monitorando...";
     }
 
-
+    //metodo abstrato para outras classes filhas terem sua propria logica
     public abstract String calcularSeveridade();
 
     public int getIdFoco() {
