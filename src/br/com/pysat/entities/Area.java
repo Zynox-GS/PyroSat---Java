@@ -28,11 +28,7 @@ public class Area {
         this.focosAtivos = new ArrayList<>();
     }
 
-    /**
-     * Calcula o risco agregado da área com base nos focos ativos (RN09).
-     * Combina score de todos os focos para gerar um índice geral de perigo.
-     * Essencial para priorização de recursos e brigadas pelo Coordenador.
-     */
+
     public double calcularRiscoAgregado() {
         if (focosAtivos.isEmpty()) {
             return 0.0;
@@ -56,11 +52,13 @@ public class Area {
         return Math.min(riscoFinal, 100.0);  // máximo 100
     }
 
-    /**
-     * Adiciona foco à lista de focos ativos da área (RN09).
-     */
     public void adicionarFoco(FocoCalor foco) {
         focosAtivos.add(foco);
+    }
+
+
+    public boolean removerFoco(FocoCalor foco) {
+        return focosAtivos.remove(foco);
     }
 
     public int getIdArea() {
