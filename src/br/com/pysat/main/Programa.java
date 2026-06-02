@@ -41,30 +41,29 @@ public class Programa {
         System.out.println("=================================================");
     }
 
-
-
     static void pausar() {
         System.out.println();
         System.out.print("  Pressione ENTER para voltar ao menu...");
         sc.nextLine();
-
     }
 
-    static ArrayList<Coordenador>      coordenadores = new ArrayList<>();
-    static ArrayList<OrgaoResponsavel> orgaos        = new ArrayList<>();
-    static ArrayList<Brigada>          brigadas      = new ArrayList<>();
-    static ArrayList<Area>             areas         = new ArrayList<>();
-    static ArrayList<FocoCalor>        focos         = new ArrayList<>();
+    static ArrayList<Coordenador>          coordenadores = new ArrayList<>();
+    static ArrayList<OrgaoResponsavel>     orgaos        = new ArrayList<>();
+    static ArrayList<Brigada>              brigadas      = new ArrayList<>();
+    static ArrayList<Area>                 areas         = new ArrayList<>();
+    static ArrayList<FocoCalor>            focos         = new ArrayList<>();
+    static ArrayList<ComunidadeCadastrada> comunidades   = new ArrayList<>();
 
     static int idCoordenador = 1;
     static int idOrgao       = 1;
     static int idBrigada     = 1;
     static int idArea        = 1;
     static int idFoco        = 100;
+    static int idComunidade  = 1;
 
     public static void main(String[] args) {
         linha();
-        System.out.println("     PYROSAT — Sistema de Detecção de Queimadas");
+        System.out.println("     PYROSAT GLOBAL — Global Wildfire Detection System");
         System.out.println("         Monitoramento via Satélite | v1.0");
         linha();
 
@@ -82,8 +81,9 @@ public class Programa {
                 case 7 -> acionarProtocolo();
                 case 8 -> liberarBrigada();
                 case 9 -> exibirRelatorioGeral();
+                case 10 -> cadastrarComunidade();
                 case 0 -> {
-                    System.out.println("\n[SISTEMA] Encerrando PyroSat. Até logo!\n");
+                    System.out.println("\n[SISTEMA] Encerrando PyroSat Global. Até logo!\n");
                     rodando = false;
                 }
                 default -> System.out.println("  !! Opção inválida. Tente novamente.");
@@ -95,17 +95,18 @@ public class Programa {
     static void exibirMenuPrincipal() {
         System.out.println();
         linha();
-        System.out.println("  MENU PRINCIPAL — PYROSAT");
+        System.out.println("  MENU PRINCIPAL — PYROSAT GLOBAL");
         linha();
         System.out.println("  [1] Cadastrar Coordenador");
         System.out.println("  [2] Cadastrar Órgão Responsável");
         System.out.println("  [3] Cadastrar Brigada");
-        System.out.println("  [4] Cadastrar Área de Monitoramento");
+        System.out.println("  [4] Cadastrar Zona de Monitoramento Global");
         System.out.println("  [5] Registrar Novo Foco de Calor");
         System.out.println("  [6] Revisar Foco Suspeito");
         System.out.println("  [7] Acionar Protocolo de Emergência");
         System.out.println("  [8] Liberar Brigada de Ocorrência");
         System.out.println("  [9] Relatório Geral do Sistema");
+        System.out.println("  [10] Cadastrar Comunidade Global");
         System.out.println("  [0] Sair");
         linha();
     }
@@ -131,7 +132,7 @@ public class Programa {
     static void cadastrarCoordenador() {
         System.out.println("\n--- CADASTRO DE COORDENADOR ---");
         String nome  = texto("  Nome completo: ");
-        String orgao = texto("  Órgão: ");
+        String orgao = texto("  Órgão / Agência: ");
         String email = texto("  E-mail: ");
 
         Coordenador c = new Coordenador(idCoordenador++, email, orgao, nome);
@@ -146,13 +147,13 @@ public class Programa {
         System.out.println("\n--- CADASTRO DE ÓRGÃO RESPONSÁVEL ---");
         String nome   = texto("  Nome do órgão: ");
         String sigla  = texto("  Sigla: ");
-        String tipo   = texto("  Tipo (Federal/Estadual/Municipal): ");
-        String estado = texto("  Estado (UF): ");
+        String tipo   = texto("  Tipo (Local/Regional/Nacional/Internacional): ");
+        String estado = texto("  País/Região: ");
         String email  = texto("  E-mail de contato: ");
-        String tel    = texto("  Telefone: ");
+        String tel    = texto("  Telefone (DDI obrigatório, ex: +1...): ");
         double lat    = real("  Latitude da sede (ex: -15.7942): ");
         double lon    = real("  Longitude da sede (ex: -47.8822): ");
-        double raio   = real("  Raio de cobertura (km): ");
+        double raio   = real("  Raio de cobertura global (km): ");
 
         OrgaoResponsavel o = new OrgaoResponsavel(lon, lat, raio, tel, email, estado, tipo, sigla, nome, idOrgao++);
         orgaos.add(o);
@@ -167,7 +168,7 @@ public class Programa {
         System.out.println("\n--- CADASTRO DE BRIGADA ---");
         String nome  = texto("  Nome da brigada: ");
         int    qtd   = inteiro("  Quantidade de brigadistas: ");
-        String orgao = texto("  Órgão vinculado: ");
+        String orgao = texto("  Órgão/Agência vinculada: ");
         double lat   = real("  Latitude atual (ex: -15.8000): ");
         double lon   = real("  Longitude atual (ex: -47.9000): ");
 
@@ -181,11 +182,11 @@ public class Programa {
     }
 
     static void cadastrarArea() {
-        System.out.println("\n--- CADASTRO DE ÁREA DE MONITORAMENTO ---");
+        System.out.println("\n--- CADASTRO DE ZONA DE MONITORAMENTO GLOBAL ---");
         String nome      = texto("  Nome da área: ");
-        String estado    = texto("  Estado (UF): ");
-        String municipio = texto("  Município: ");
-        String bioma     = texto("  Bioma (ex: Cerrado, Amazônia): ");
+        String estado    = texto("  País/Região: ");
+        String municipio = texto("  Cidade/Província: ");
+        String bioma     = texto("  Bioma (ex: Savana, Floresta Tropical, Tundra): ");
         double lat       = real("  Latitude do centróide: ");
         double lon       = real("  Longitude do centróide: ");
         double areaKm2   = real("  Área em km²: ");
@@ -193,8 +194,27 @@ public class Programa {
         Area a = new Area(idArea++, nome, estado, municipio, bioma, lat, lon, areaKm2);
         areas.add(a);
 
-        System.out.println("\n  [OK] Área cadastrada!");
+        System.out.println("\n  [OK] Zona de monitoramento cadastrada!");
         System.out.println(a);
+        pausar();
+    }
+
+    static void cadastrarComunidade() {
+        System.out.println("\n--- CADASTRO DE COMUNIDADE GLOBAL ---");
+        String nome = texto("  Nome da comunidade ou assentamento: ");
+        String tipo = texto("  Tipo (Nativa/Tradicional, Rural, Urbana, Assentamento): ");
+        String whatsapp = texto("  WhatsApp Global (DDI obrigatório, ex: +1 415..., +55 11...): ");
+        double raio = real("  Raio de alerta (km): ");
+
+        System.out.println("\n  Vincular a uma zona de monitoramento existente:");
+        Area area = selecionarArea();
+        int idAreaVinculada = (area != null) ? area.getIdArea() : 0;
+
+        ComunidadeCadastrada c = new ComunidadeCadastrada(idComunidade++, idAreaVinculada, nome, tipo, whatsapp, raio);
+        comunidades.add(c);
+
+        System.out.println("\n  [OK] Comunidade global cadastrada com sucesso!");
+        System.out.println(c);
         pausar();
     }
 
@@ -318,7 +338,6 @@ public class Programa {
             }
 
             String acionar = texto("\n  Acionar protocolo de emergência agora? (s/n): ");
-            // CORREÇÃO: passa o coord selecionado, não pega hardcoded do índice 0
             if (acionar.equalsIgnoreCase("s")) executarProtocolo(fc, coord);
 
         } else if (decisao == 2) {
@@ -388,29 +407,25 @@ public class Programa {
             return;
         }
 
-        // CORREÇÃO: passa o coord selecionado, não pega hardcoded do índice 0
         executarProtocolo(confirmados.get(idxFoco), coord);
         pausar();
     }
 
-    // CORREÇÃO: agora recebe o Coordenador como parâmetro em vez de usar coordenadores.get(0)
     static void executarProtocolo(FocoConfirmado fc, Coordenador coord) {
         linha();
         System.out.println("  Coordenador: " + coord.getNome());
         System.out.println("  Foco #" + fc.getIdFoco() + " | Severidade: " + fc.getNivelSeveridade());
-        // INFORMATIVO: mostra a temperatura para o usuário entender o nível de alocação
         System.out.println("  Temperatura: " + fc.getTemperaturaCelsius() + "°C"
                 + "  (ALERTA ≥ 400°C | EMERGENCIA ≥ 600°C)");
         linha();
 
-        System.out.println("\n[SISTEMA] Selecionando órgãos dentro do raio de cobertura...");
+        System.out.println("\n[SISTEMA] Selecionando órgãos dentro do raio de cobertura global...");
         OrgaoResponsavel[] arrayOrgaos = orgaos.toArray(new OrgaoResponsavel[0]);
         ArrayList<Alerta> alertas = coord.acionarProtocoloCascata(fc, arrayOrgaos);
 
         System.out.println("\n[SISTEMA] Coordenando brigadas...");
         Brigada[] arrayBrigadas = brigadas.toArray(new Brigada[0]);
         if (arrayBrigadas.length > 0) {
-            // CORREÇÃO: usa um único protocolo gerado uma vez, não dois gerarProtocolo() diferentes
             String protocolo = fc.gerarProtocolo();
             coord.coordenarBrigadas(fc, protocolo, arrayBrigadas);
         } else {
@@ -463,7 +478,7 @@ public class Programa {
 
     static void exibirRelatorioGeral() {
         linha();
-        System.out.println("          RELATÓRIO GERAL — PYROSAT");
+        System.out.println("          RELATÓRIO GERAL — PYROSAT GLOBAL");
         linha();
 
         System.out.println("\n>>> COORDENADORES (" + coordenadores.size() + ")");
@@ -484,7 +499,11 @@ public class Programa {
             System.out.println("  Disponível: " + (b.verificarDisponibilidade() ? "Sim" : "Não"));
         }
 
-        System.out.println("\n>>> ÁREAS DE MONITORAMENTO (" + areas.size() + ")");
+        System.out.println("\n>>> COMUNIDADES GLOBAIS CADASTRADAS (" + comunidades.size() + ")");
+        if (comunidades.isEmpty()) System.out.println("  Nenhuma cadastrada.");
+        for (ComunidadeCadastrada c : comunidades) System.out.println(c);
+
+        System.out.println("\n>>> ZONAS DE MONITORAMENTO (" + areas.size() + ")");
         if (areas.isEmpty()) System.out.println("  Nenhuma cadastrada.");
         for (Area a : areas) {
             System.out.println(a);
@@ -501,12 +520,12 @@ public class Programa {
 
     static Area selecionarArea() {
         if (areas.isEmpty()) return null;
-        System.out.println("\n  Áreas cadastradas:");
+        System.out.println("\n  Zonas cadastradas:");
         for (int i = 0; i < areas.size(); i++) {
             System.out.println("    [" + (i + 1) + "] " + areas.get(i).getNome()
                     + " — " + areas.get(i).getEstado());
         }
-        int escolha = inteiro("  Vincular a área (0 = nenhuma): ");
+        int escolha = inteiro("  Vincular a zona (0 = nenhuma): ");
         if (escolha > 0 && escolha <= areas.size()) return areas.get(escolha - 1);
         return null;
     }
