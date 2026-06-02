@@ -22,21 +22,13 @@ public class Coordenador {
         this.logOperacoes = new ArrayList<>();
     }
 
-    /**
-     * Verifica se o nível do foco exige confirmação humana (RN04).
-     * Alertas de nível ALERTA ou EMERGENCIA exigem confirmação em até 10 minutos.
-     * Retorna true se o coordenador precisa agir manualmente.
-     */
+
     public boolean exigeConfirmacaoHumana(FocoConfirmado foco) {
         String nivel = foco.calcularSeveridade();
         return nivel.equals("ALERTA") || nivel.equals("EMERGENCIA");
     }
 
-    /**
-     * Seleciona automaticamente quais órgãos acionar baseado no raio de cobertura
-     * em relação à distância do foco (RN05).
-     * Evita acionar órgãos que não cobrem a área do incêndio.
-     */
+
     public ArrayList<OrgaoResponsavel> selecionarOrgaos(FocoConfirmado foco, OrgaoResponsavel... orgaos) {
         ArrayList<OrgaoResponsavel> selecionados = new ArrayList<>();
 
@@ -60,11 +52,7 @@ public class Coordenador {
         return selecionados;
     }
 
-    /**
-     * Aciona o protocolo em cascata apenas para órgãos dentro do raio de cobertura (RN02, RN05).
-     * Verifica confirmação humana antes de disparar níveis críticos (RN04).
-     * É o metodo central do Coordenador — conecta detecção, seleção e resposta.
-     */
+
     public ArrayList<Alerta> acionarProtocoloCascata(FocoConfirmado foco, OrgaoResponsavel... orgaos) {
         System.out.println("\n>>> COORDENADOR " + nome + " acionando protocolo em cascata...");
 
@@ -93,12 +81,7 @@ public class Coordenador {
         return alertas;
     }
 
-    /**
-     * Coordena alocação de brigadas baseado na severidade do foco (RN06).
-     * EMERGENCIA aloca todas as brigadas disponíveis.
-     * ALERTA aloca apenas a primeira disponível.
-     * Níveis abaixo de ALERTA não alocam brigadas.
-     */
+
     public int coordenarBrigadas(FocoConfirmado foco, String protocoloOcorrencia, Brigada... brigadas) {
         System.out.println("\n>>> Coordenando brigadas para ocorrência " + protocoloOcorrencia + "...");
         String nivel = foco.getNivelSeveridade();
@@ -130,10 +113,7 @@ public class Coordenador {
         return alocadas;
     }
 
-    /**
-     * Calcula distância aproximada em km entre dois pontos geográficos.
-     * Usado internamente para selecionar órgãos pelo raio de cobertura.
-     */
+
     private double calcularDistanciaKm(double lat1, double lon1, double lat2, double lon2) {
         final double RAIO_TERRA = 6371.0;
         double dLat = Math.toRadians(lat2 - lat1);

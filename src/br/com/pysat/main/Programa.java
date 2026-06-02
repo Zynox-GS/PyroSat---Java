@@ -282,7 +282,7 @@ public class Programa {
             double novaTemp    = real("  Nova temperatura (°C): ");
             double novaUmidade = real("  Nova umidade (%): ");
             double novoNdvi    = real("  Novo NDVI (0.0 a 1.0): ");
-            fs.setTemperaturaKelvin(novaTemp);
+            fs.setTemperaturaCelsius(novaTemp);
             fs.setUmidade(novaUmidade);
             fs.setNdvi(novoNdvi);
             fs.calcularSeveridade();

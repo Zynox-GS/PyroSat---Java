@@ -47,17 +47,12 @@ public class OrgaoResponsavel implements Notificavel {
         return "Email: " + emailContato + " | Telefone: " + (telefone != null ? telefone : "N/A");
     }
 
-    /**
-     * Verifica se o órgão cobre determinada distância em km.
-     * Usado pelo Coordenador para decidir quais órgãos acionar (RN05).
-     */
+
     public boolean cobreaDistancia(double distanciaKm) {
         return distanciaKm <= raioCobertura;
     }
 
-    /**
-     * Exibe relatório de todos os alertas recebidos pelo órgão.
-     */
+
     public void exibirRelatorioAlertas() {
         System.out.println("\n=== RELATÓRIO DE ALERTAS — " + sigla + " ===");
         if (alertasRecebidos.isEmpty()) {

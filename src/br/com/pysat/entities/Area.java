@@ -45,7 +45,6 @@ public class Area {
         }
 
         double mediScore = somaScores / focosAtivos.size();
-        // Focos confirmados aumentam o risco agregado em 10% cada
         double fatorConfirmados = 1.0 + (focosConfirmados * 0.10);
         double riscoFinal = mediScore * fatorConfirmados;
 
