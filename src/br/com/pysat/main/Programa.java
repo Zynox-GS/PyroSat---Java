@@ -41,6 +41,26 @@ public class Programa {
         System.out.println("=================================================");
     }
 
+    static void limparTela() {
+        try {
+            if (System.getProperty("os.name").contains("Windows")) {
+                new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+            } else {
+                System.out.print("\033[H\033[2J");
+                System.out.flush();
+            }
+        } catch (Exception e) {
+            for (int i = 0; i < 50; i++) System.out.println();
+        }
+    }
+
+    static void pausar() {
+        System.out.println();
+        System.out.print("  Pressione ENTER para voltar ao menu...");
+        sc.nextLine();
+        limparTela();
+    }
+
     static ArrayList<Coordenador>      coordenadores = new ArrayList<>();
     static ArrayList<OrgaoResponsavel> orgaos        = new ArrayList<>();
     static ArrayList<Brigada>          brigadas      = new ArrayList<>();
@@ -54,6 +74,7 @@ public class Programa {
     static int idFoco        = 100;
 
     public static void main(String[] args) {
+        limparTela();
         linha();
         System.out.println("     PYROSAT — Sistema de Detecção de Queimadas");
         System.out.println("         Monitoramento via Satélite | v1.0");
@@ -101,6 +122,24 @@ public class Programa {
         linha();
     }
 
+    static Coordenador selecionarCoordenador(String titulo) {
+        if (coordenadores.isEmpty()) {
+            System.out.println("  !! Nenhum coordenador cadastrado. Cadastre um primeiro.");
+            return null;
+        }
+        System.out.println("\n  " + titulo);
+        for (int i = 0; i < coordenadores.size(); i++) {
+            Coordenador c = coordenadores.get(i);
+            System.out.println("    [" + (i + 1) + "] " + c.getNome() + " — " + c.getOrgao());
+        }
+        int idx = inteiro("  Selecione o coordenador: ") - 1;
+        if (idx < 0 || idx >= coordenadores.size()) {
+            System.out.println("  !! Seleção inválida.");
+            return null;
+        }
+        return coordenadores.get(idx);
+    }
+
     static void cadastrarCoordenador() {
         System.out.println("\n--- CADASTRO DE COORDENADOR ---");
         String nome  = texto("  Nome completo: ");
@@ -112,6 +151,7 @@ public class Programa {
 
         System.out.println("\n  [OK] Coordenador cadastrado!");
         System.out.println(c);
+        pausar();
     }
 
     static void cadastrarOrgaoResponsavel() {
@@ -132,6 +172,7 @@ public class Programa {
         System.out.println("\n  [OK] Órgão cadastrado!");
         System.out.println(o);
         System.out.println("  Canais de notificação: " + o.getCanaisNotificacao());
+        pausar();
     }
 
     static void cadastrarBrigada() {
@@ -148,6 +189,7 @@ public class Programa {
         System.out.println("\n  [OK] Brigada cadastrada!");
         System.out.println("  Status inicial: " + (b.verificarDisponibilidade() ? "DISPONÍVEL" : "INDISPONÍVEL"));
         System.out.println(b);
+        pausar();
     }
 
     static void cadastrarArea() {
@@ -165,6 +207,7 @@ public class Programa {
 
         System.out.println("\n  [OK] Área cadastrada!");
         System.out.println(a);
+        pausar();
     }
 
     static void registrarFoco() {
@@ -175,6 +218,7 @@ public class Programa {
 
         if (tipo != 1 && tipo != 2) {
             System.out.println("  !! Tipo inválido.");
+            pausar();
             return;
         }
 
@@ -205,9 +249,13 @@ public class Programa {
             }
 
         } else {
-            String operador = texto("  Nome do operador que confirmou: ");
+            Coordenador coord = selecionarCoordenador("Coordenador responsável pela confirmação:");
+            if (coord == null) {
+                pausar();
+                return;
+            }
 
-            FocoConfirmado fc = new FocoConfirmado(idFoco++, lat, lon, temp, dataH, operador, dataH);
+            FocoConfirmado fc = new FocoConfirmado(idFoco++, lat, lon, temp, dataH, coord.getNome(), dataH);
             fc.calcularSeveridade();
             focos.add(fc);
             if (areaSelecionada != null) areaSelecionada.adicionarFoco(fc);
@@ -216,6 +264,7 @@ public class Programa {
             System.out.println(fc);
             System.out.println("  Severidade: " + fc.getNivelSeveridade() + " | Score: " + fc.getScoreRisco());
         }
+        pausar();
     }
 
     static void revisarFocoSuspeito() {
@@ -230,6 +279,7 @@ public class Programa {
 
         if (suspeitos.isEmpty()) {
             System.out.println("  Nenhum foco suspeito pendente de revisão.");
+            pausar();
             return;
         }
 
@@ -243,7 +293,10 @@ public class Programa {
         }
 
         int escolha = inteiro("  Escolha o foco (0 = cancelar): ");
-        if (escolha == 0 || escolha > suspeitos.size()) return;
+        if (escolha == 0 || escolha > suspeitos.size()) {
+            pausar();
+            return;
+        }
         FocoSuspeito fs = suspeitos.get(escolha - 1);
 
         System.out.println(fs);
@@ -253,9 +306,13 @@ public class Programa {
         int decisao = inteiro("  Decisão: ");
 
         if (decisao == 1) {
-            String operador = texto("  Nome do operador responsável: ");
+            Coordenador coord = selecionarCoordenador("Coordenador responsável pela confirmação:");
+            if (coord == null) {
+                pausar();
+                return;
+            }
 
-            FocoConfirmado fc = fs.promoverParaConfirmado(operador);
+            FocoConfirmado fc = fs.promoverParaConfirmado(coord.getNome());
             fc.calcularSeveridade();
 
             focos.remove(fs);
@@ -267,16 +324,14 @@ public class Programa {
             System.out.println("\n  [OK] Foco #" + fc.getIdFoco() + " promovido para CONFIRMADO!");
             System.out.println(fc);
 
-            if (!coordenadores.isEmpty()) {
-                Coordenador coord = coordenadores.get(0);
-                if (coord.exigeConfirmacaoHumana(fc)) {
-                    System.out.println("\n  [!] Nível " + fc.getNivelSeveridade()
-                            + " exige ação imediata — coordenador " + coord.getNome() + " notificado.");
-                }
+            if (coord.exigeConfirmacaoHumana(fc)) {
+                System.out.println("\n  [!] Nível " + fc.getNivelSeveridade()
+                        + " exige ação imediata — coordenador " + coord.getNome() + " notificado.");
             }
 
             String acionar = texto("\n  Acionar protocolo de emergência agora? (s/n): ");
-            if (acionar.equalsIgnoreCase("s")) executarProtocolo(fc);
+            // CORREÇÃO: passa o coord selecionado, não pega hardcoded do índice 0
+            if (acionar.equalsIgnoreCase("s")) executarProtocolo(fc, coord);
 
         } else if (decisao == 2) {
             double novaTemp    = real("  Nova temperatura (°C): ");
@@ -297,6 +352,7 @@ public class Programa {
         } else {
             System.out.println("  !! Opção inválida.");
         }
+        pausar();
     }
 
     static void acionarProtocolo() {
@@ -304,21 +360,18 @@ public class Programa {
 
         if (coordenadores.isEmpty()) {
             System.out.println("  !! Cadastre ao menos um Coordenador primeiro.");
+            pausar();
             return;
         }
         if (orgaos.isEmpty()) {
             System.out.println("  !! Cadastre ao menos um Órgão Responsável primeiro.");
+            pausar();
             return;
         }
 
-        System.out.println("  Coordenadores disponíveis:");
-        for (int i = 0; i < coordenadores.size(); i++) {
-            System.out.println("    [" + (i + 1) + "] " + coordenadores.get(i).getNome()
-                    + " — " + coordenadores.get(i).getOrgao());
-        }
-        int idxCoord = inteiro("  Selecione o coordenador: ") - 1;
-        if (idxCoord < 0 || idxCoord >= coordenadores.size()) {
-            System.out.println("  !! Seleção inválida.");
+        Coordenador coord = selecionarCoordenador("Coordenador que acionará o protocolo:");
+        if (coord == null) {
+            pausar();
             return;
         }
 
@@ -329,6 +382,7 @@ public class Programa {
 
         if (confirmados.isEmpty()) {
             System.out.println("  !! Nenhum foco confirmado disponível.");
+            pausar();
             return;
         }
 
@@ -342,18 +396,23 @@ public class Programa {
         int idxFoco = inteiro("  Selecione o foco: ") - 1;
         if (idxFoco < 0 || idxFoco >= confirmados.size()) {
             System.out.println("  !! Seleção inválida.");
+            pausar();
             return;
         }
 
-        executarProtocolo(confirmados.get(idxFoco));
+        // CORREÇÃO: passa o coord selecionado, não pega hardcoded do índice 0
+        executarProtocolo(confirmados.get(idxFoco), coord);
+        pausar();
     }
 
-    static void executarProtocolo(FocoConfirmado fc) {
-        Coordenador coord = coordenadores.get(0);
-
+    // CORREÇÃO: agora recebe o Coordenador como parâmetro em vez de usar coordenadores.get(0)
+    static void executarProtocolo(FocoConfirmado fc, Coordenador coord) {
         linha();
         System.out.println("  Coordenador: " + coord.getNome());
         System.out.println("  Foco #" + fc.getIdFoco() + " | Severidade: " + fc.getNivelSeveridade());
+        // INFORMATIVO: mostra a temperatura para o usuário entender o nível de alocação
+        System.out.println("  Temperatura: " + fc.getTemperaturaCelsius() + "°C"
+                + "  (ALERTA ≥ 400°C | EMERGENCIA ≥ 600°C)");
         linha();
 
         System.out.println("\n[SISTEMA] Selecionando órgãos dentro do raio de cobertura...");
@@ -363,7 +422,9 @@ public class Programa {
         System.out.println("\n[SISTEMA] Coordenando brigadas...");
         Brigada[] arrayBrigadas = brigadas.toArray(new Brigada[0]);
         if (arrayBrigadas.length > 0) {
-            coord.coordenarBrigadas(fc, fc.gerarProtocolo(), arrayBrigadas);
+            // CORREÇÃO: usa um único protocolo gerado uma vez, não dois gerarProtocolo() diferentes
+            String protocolo = fc.gerarProtocolo();
+            coord.coordenarBrigadas(fc, protocolo, arrayBrigadas);
         } else {
             System.out.println("  [!] Nenhuma brigada cadastrada para alocação.");
         }
@@ -377,6 +438,7 @@ public class Programa {
 
         if (brigadas.isEmpty()) {
             System.out.println("  Nenhuma brigada cadastrada.");
+            pausar();
             return;
         }
 
@@ -389,6 +451,7 @@ public class Programa {
 
         if (emCampo.isEmpty()) {
             System.out.println("  Nenhuma brigada está em campo no momento.");
+            pausar();
             return;
         }
 
@@ -399,11 +462,15 @@ public class Programa {
         }
 
         int escolha = inteiro("  Selecione a brigada (0 = cancelar): ");
-        if (escolha == 0 || escolha > emCampo.size()) return;
+        if (escolha == 0 || escolha > emCampo.size()) {
+            pausar();
+            return;
+        }
 
         Brigada b = emCampo.get(escolha - 1);
         System.out.println("  " + b.liberarBrigada());
         System.out.println("  Disponível agora: " + (b.verificarDisponibilidade() ? "Sim" : "Não"));
+        pausar();
     }
 
     static void exibirRelatorioGeral() {
@@ -441,6 +508,7 @@ public class Programa {
         for (FocoCalor f : focos) System.out.println(f);
 
         linha();
+        pausar();
     }
 
     static Area selecionarArea() {
