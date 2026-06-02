@@ -48,7 +48,7 @@ public class Area {
         double fatorConfirmados = 1.0 + (focosConfirmados * 0.10);
         double riscoFinal = mediScore * fatorConfirmados;
 
-        return Math.min(riscoFinal, 100.0);  // máximo 100
+        return Math.min(riscoFinal, 100.0);
     }
 
     public void adicionarFoco(FocoCalor foco) {
