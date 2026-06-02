@@ -25,13 +25,13 @@ public class FocoConfirmado extends FocoCalor {
     public String calcularSeveridade() {
         String nivel;
         double score;
-        if (temperaturaCelsius >= 600) {
+        if (temperaturaCelsius >= 147) {
             nivel = "EMERGENCIA";
             score = 95.0;
-        } else if (temperaturaCelsius >= 400) {
+        } else if (temperaturaCelsius >= 70) {
             nivel = "ALERTA";
             score = 75.0;
-        } else if (temperaturaCelsius >= 200) {
+        } else if (temperaturaCelsius >= 40) {
             nivel = "ATENCAO";
             score = 50.0;
         } else {

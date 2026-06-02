@@ -46,7 +46,7 @@ public class FocoSuspeito extends FocoCalor {
 
     public void descartar() {
         this.aguardandoRevisao = false;
-        setClassificacao("DESCARTADO");
+        setClassificacao("FALSO_POSITIVO");
     }
 
     public FocoConfirmado promoverParaConfirmado(String operador) {
