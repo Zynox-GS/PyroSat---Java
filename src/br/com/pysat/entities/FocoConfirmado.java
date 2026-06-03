@@ -13,9 +13,9 @@ public class FocoConfirmado extends FocoCalor {
     }
 
     public FocoConfirmado(int idFoco, double latitude, double longitude,
-                          double temperaturaKelvin, String dataHoraDeteccao,
+                          double temperaturaCelsius, String dataHoraDeteccao,
                           String operadorConfirmacao, String dataHoraConfirmacao) {
-        super(idFoco, latitude, longitude, temperaturaKelvin, "CONFIRMADO", dataHoraDeteccao);
+        super(idFoco, latitude, longitude, temperaturaCelsius, "CONFIRMADO", dataHoraDeteccao);
         this.operadorConfirmacao = operadorConfirmacao;
         this.dataHoraConfirmacao = dataHoraConfirmacao;
         this.alertasGerados = new ArrayList<>();
