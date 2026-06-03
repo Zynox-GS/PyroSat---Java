@@ -132,7 +132,7 @@ public class ComunidadeCadastrada implements Notificavel {
 
     @Override
     public String toString() {
-        return "\n=== GLOBAL COMMUNITY RECORD ===" +
+        return "\n=== Comunidade (Nacional/Internacional) ===" +
                 "\nID: " + idComunidade +
                 "\nNome: " + nome +
                 "\nTipo de Assentamento: " + tipo +
@@ -140,7 +140,7 @@ public class ComunidadeCadastrada implements Notificavel {
                 "\nWhatsApp (Global): " + whatsapp +
                 "\nRaio de Cobertura: " + raioAlertaKm + " km" +
                 "\nData de Registro: " + dataCadastro +
-                "\nStatus Ativo: " + (ativo ? "Yes" : "No") +
+                "\nStatus Ativo: " + (ativo ? "Sim" : "Nao") +
                 "\nAlertas Recebidos: " + alertasRecebidos.size();
     }
 }
