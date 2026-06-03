@@ -416,7 +416,7 @@ public class Programa {
         System.out.println("  Coordenador: " + coord.getNome());
         System.out.println("  Foco #" + fc.getIdFoco() + " | Severidade: " + fc.getNivelSeveridade());
         System.out.println("  Temperatura: " + fc.getTemperaturaCelsius() + "°C"
-                + "  (ALERTA ≥ 400°C | EMERGENCIA ≥ 600°C)");
+                + "  (ALERTA ≥ 70°C | EMERGENCIA ≥ 147°C)");
         linha();
 
         System.out.println("\n[SISTEMA] Selecionando órgãos dentro do raio de cobertura global...");
